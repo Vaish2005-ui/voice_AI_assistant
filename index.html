@@ -216,6 +216,14 @@
       min-height: 18px;
     }
 
+    #language {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--bg);
+    }
+
     .textrow {
       display: flex;
       gap: 8px;
@@ -264,6 +272,12 @@
     </div>
 
     <div class="controls">
+      <label for="language">Language
+        <select id="language">
+          <option value="en">English</option>
+          <option value="hi" lang="hi">हिन्दी</option>
+        </select>
+      </label>
       <button id="recBtn" title="Record">🎤</button>
       <div id="status">Ready</div>
       <div class="textrow">
@@ -281,6 +295,7 @@
     const textIn = document.getElementById("textIn");
     const sendBtn = document.getElementById("sendBtn");
     const newBtn = document.getElementById("newBtn");
+    const languageSelect = document.getElementById("language");
 
     let sessionId = null;
     let recorder = null;
@@ -346,6 +361,7 @@
       try {
         const form = new FormData();
         form.append("audio", blob, "recording.webm");
+        form.append("language", languageSelect.value);
         if (sessionId) form.append("session_id", sessionId);
         const res = await fetch("/voice", { method: "POST", body: form });
         if (!res.ok) throw new Error(await readError(res));
@@ -374,7 +390,9 @@
         const res = await fetch("/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: text, session_id: sessionId, speak: true })
+          body: JSON.stringify({
+            text, session_id: sessionId, speak: true, language: languageSelect.value
+          })
         });
         if (!res.ok) throw new Error(await readError(res));
         const data = await res.json();
